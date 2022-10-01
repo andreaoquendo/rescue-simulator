@@ -20,7 +20,7 @@ def buildMaze(model):
 
 def main():
     # Lê arquivo config.txt
-    arq = open(os.path.join("config_data","config.txt"),"r")
+    arq = open(os.path.join("config_data","ambiente.txt"),"r")
     configDict = {} 
     for line in arq:
         ## O formato de cada linha é:var=valor
@@ -30,7 +30,9 @@ def main():
         ## Bv e Bs: bateria inicial disponível ao agente vasculhador e ao socorrista
         ## Ks :capacidade de carregar suprimentos em número de pacotes (somente para o ag. socorrista)
 
-        values = line.split("=")
+        values = line.split(" ")
+        if values[0] == "Vitimas" or values[0] == "Parede":
+            break
         configDict[values[0]] = int(values[1])
 
     print("dicionario config: ", configDict)
@@ -41,7 +43,7 @@ def main():
     ## nome do arquivo de configuracao do ambiente - deve estar na pasta <proj>/config_data
     loadMaze = "ambiente"
 
-    model = Model(configDict["maxLin"], configDict["maxCol"], mesh, loadMaze)
+    model = Model(configDict["XMax"], configDict["YMax"], mesh, loadMaze)
     buildMaze(model)
 
     model.maze.board.posAgent

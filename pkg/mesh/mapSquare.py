@@ -34,7 +34,7 @@ class MapSquare:
         ## Chama o metodo para gerar a malha
         self.generateMap()
 
-    ## Metodo que gera a malha de triangulos
+    ## Metodo que gera a malha de quadrados
     def generateMap(self):
         yr = 0
         y = self.posBegin[1]
