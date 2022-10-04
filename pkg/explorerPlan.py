@@ -7,7 +7,7 @@ class ExplorerPlan:
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
-        self.walls = []
+        self.walls = {}
         self.maxRows = maxRows
         self.maxColumns = maxColumns
         self.initialState = initialState
@@ -30,15 +30,25 @@ class ExplorerPlan:
         elif didMove == False:
             self.matrix[after.row][after.col] = -1
     
-    def isItTimeToGoBackHome(self, timeLeft, cost, current):
-        if self.matrix[current.row][current.col] + cost - timeLeft >= 0:
+    #def isItTimeToGoBackHome(self, timeLeft, cost, current):
+    def isItTimeToGoBackHome(self, timeLeft, cost):
+        """Retorna se é momento de fazer o caminho de volta:
+        @param timeLeft
+        """
+        if cost == None:
+            return False
+        if self.matrix[self.currentState.row][self.currentState.col] + cost - timeLeft >= 0:
             return True
         return False
 
-    #MUDAR, VERIFICAR APENAS DURANTE A EXECUÇÃO
-    def setWallsFile(self, walls):
+    def setVictimsFile(self, current, vitals):
+        """ Faz um update do arquivo de vítimas:
+        @param current:
+        @pram vitals:
+        """    
         return
-
+    #MUDAR, VERIFICAR APENAS DURANTE A EXECUÇÃO
+    # def updateWallsFile(self, row, col, walls = 0):
         # row = 0
         # col = 0
         # for i in walls:

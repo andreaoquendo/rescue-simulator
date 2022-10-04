@@ -62,6 +62,9 @@ class Model:
         @param to_row: linha para onde vai o agente
         @param to_col: col para onde vai o agente """
 
+        # from_row = self.agentPos[0]
+        # from_col = self.agentPos[1]
+
         ## vai para fora do labirinto
         if (to_col < 0 or to_row < 0):
             return -1
@@ -123,6 +126,7 @@ class Model:
     def go(self, action):
         """
             Esse metodo deve ser alterado de acordo com o action a ser passado
+            Retorna: Se houver parede, ele retornará False
         """
         #result = plan.do()
         #step = result[0]
@@ -152,7 +156,9 @@ class Model:
             col = self.agentPos[1] - 1
         
         if (self.isPossibleToMove(self.agentPos[0], self.agentPos[1], row, col) == 1):
-            self.setAgentPos(row, col)            
+            self.setAgentPos(row, col)
+            return True
+        return False            
     
     
     def getVictimVitalSignals(self, victimId):

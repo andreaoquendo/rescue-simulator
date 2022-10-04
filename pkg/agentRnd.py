@@ -111,7 +111,9 @@ class AgentRnd:
         print("Tempo disponivel: ", self.tl)
 
         #MUDAR botar um if para matar  o programa se acabou o tempo
-        
+        # if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
+        #     print("É hora de voltar para casa!")
+
         ## Verifica se atingiu o estado objetivo
         ## Poderia ser outra condição, como atingiu o custo máximo de operação
         if self.prob.goalTest(self.currentState):
@@ -122,6 +124,7 @@ class AgentRnd:
         victimId = self.victimPresenceSensor()
         if victimId > 0:
             print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
+            self.plan.setVictimsFile(self.currentState, self.victimVitalSignalsSensor(victimId))
             #print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
 
         ## Define a proxima acao a ser executada
@@ -129,8 +132,14 @@ class AgentRnd:
         result = self.plan.chooseAction()
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
-        ## Executa esse acao, atraves do metodo executeGo 
-        self.executeGo(result[0])
+        #MUDAR Verificar se o resultado deu em parede
+        # def updateWallsFile():
+        # 
+
+        ## Executa esse acao, atraves do metodo executeGo. Mas dev
+        move = self.executeGo(result[0])
+        self.plan.updateMatrix()
+
         self.previousAction = result[0]
         self.expectedState = result[1]       
 
@@ -144,6 +153,8 @@ class AgentRnd:
 
         ## Passa a acao para o modelo
         result = self.model.go(action)
+
+        return result
         
         ## Se o resultado for True, significa que a acao foi completada com sucesso, e ja pode ser removida do plano
         ## if (result[1]): ## atingiu objetivo ## TACLA 20220311
@@ -168,6 +179,11 @@ class AgentRnd:
         @param o id da vítima
         @return a lista de sinais vitais (ou uma lista vazia se não tem vítima com o id)"""     
         return self.model.getVictimVitalSignals(victimId)
+    
+    # def obstaclePresenceSensor(self):
+    #     """Simula um sensor que realiza a deteccao de presenca de obstáculo na posicao onde o agente se encontra no ambiente
+    #         @return retorna bool"""     
+    #     return self.model.isPossibleToMove()
 
     def victimDiffOfAcessSensor(self, victimId):
         """Simula um sensor que realiza a leitura dos dados relativos à dificuldade de acesso a vítima
