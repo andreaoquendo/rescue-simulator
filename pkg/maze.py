@@ -69,15 +69,16 @@ class Maze:
 
 
         ## Pega a matriz com todos os lugares (seja quadrado ou triangulo)
-        aux = self.board.getListPlaces()
+        aux = self.board.getListPlaces() #lista de coisas, vitimias, paredes...
         for i in aux:
             for j in i:
                 ## Verifica o tipo do objeto, e coloca sua identificacao na matriz walls 
                 if j.itemInside == "Parede":
                     pos = j.ide
                     self.walls[pos[0]][pos[1]] = 1
-                elif j.itemInside == "Vitima":
+                elif j.itemInside == "Vitimas":
                     pos = j.ide
+                    #MUDAR: CASO A SEQUÊNCIA DAS VÍTIMAS NAO ESTEJA IGUAL AO ARQUIVO
                     self.numberOfVictims = self.numberOfVictims + 1
                     self.victims[pos[0]][pos[1]] = self.numberOfVictims
                     

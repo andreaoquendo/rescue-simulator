@@ -7,6 +7,7 @@ import os
 
 ## Importa Classes necessarias para o funcionamento
 from model import Model
+from pkg.explorerPlan import ExplorerPlan
 from problem import Problem
 from state import State
 from random import randint
@@ -22,14 +23,15 @@ from planner import Planner
 class AgentRnd:
     def __init__(self, model, configDict):
         """ 
-        Construtor do agente random
+        Construtor do agente explorador
         @param model referencia o ambiente onde o agente estah situado
         """
        
         self.model = model
 
         ## Obtem o tempo que tem para executar
-        self.tl = configDict["Tl"]
+        #MUDAR PARA SE ADAPTAR AO PLANO
+        self.tl = configDict["Te"]
         print("Tempo disponivel: ", self.tl)
         
         ## Pega o tipo de mesh, que está no model (influência na movimentação)
@@ -67,11 +69,11 @@ class AgentRnd:
         self.costAll = 0
 
         ## Cria a instancia do plano para se movimentar aleatoriamente no labirinto (sem nenhuma acao) 
-        self.plan = RandomPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
+        self.plan = ExplorerPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
 
         ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
         ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
-        self.plan.setWalls(model.maze.walls)
+        #self.plan.setWalls(model.maze.walls)
         
         ## Adiciona o(s) planos a biblioteca de planos do agente
         self.libPlan=[self.plan]
@@ -108,6 +110,8 @@ class AgentRnd:
         self.tl -= self.prob.getActionCost(self.previousAction)
         print("Tempo disponivel: ", self.tl)
 
+        #MUDAR botar um if para matar  o programa se acabou o tempo
+        
         ## Verifica se atingiu o estado objetivo
         ## Poderia ser outra condição, como atingiu o custo máximo de operação
         if self.prob.goalTest(self.currentState):
@@ -118,7 +122,7 @@ class AgentRnd:
         victimId = self.victimPresenceSensor()
         if victimId > 0:
             print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
-            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
+            #print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>

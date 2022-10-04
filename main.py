@@ -31,8 +31,8 @@ def main():
         ## Ks :capacidade de carregar suprimentos em número de pacotes (somente para o ag. socorrista)
 
         values = line.split(" ")
-        if values[0] == "Vitimas" or values[0] == "Parede":
-            break
+        if values[0] == "Vitimas" or values[0] == "Parede" or values[0] == "Base":
+            continue
         configDict[values[0]] = int(values[1])
 
     print("dicionario config: ", configDict)

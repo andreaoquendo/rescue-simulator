@@ -14,7 +14,7 @@ class RandomPlan:
         self.goalPos = goal
         self.actions = []
 
-    
+    #MUDAR, VERIFICAR APENAS DURANTE A EXECUÇÃO
     def setWalls(self, walls):
         row = 0
         col = 0
@@ -62,6 +62,7 @@ class RandomPlan:
         
         return True
 
+    #MUDAR, NÃO VAI MAIS SER RANDOM
     def randomizeNextPosition(self):
          """ Sorteia uma direcao e calcula a posicao futura do agente 
          @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
@@ -82,6 +83,7 @@ class RandomPlan:
          return movDirection, state
 
 
+    #SÓ RETORNA QUANDO FAZ O MOVIMENTO, MAS TEM Q CONTAR MSM Q NÃO CONSEGUIR
     def chooseAction(self):
         """ Escolhe o proximo movimento de forma aleatoria. 
         Eh a acao que vai ser executada pelo agente. 

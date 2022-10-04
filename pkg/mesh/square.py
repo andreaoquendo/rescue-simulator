@@ -76,6 +76,7 @@ class Square:
 
     ## Verifica se foi clicado em algum desses itens
     ## E define isso nos itens
+    ## MUDAR: ESSA FUNÇÃO NÃO É UTILIZADA (APARENTEMENTE)
     def checkClickItens(self, posMouse):
         self.itemInside = self.selectItens.checkClickIten(posMouse)
         if self.itemInside == "Agente":
@@ -98,11 +99,11 @@ class Square:
         elif self.itemInside == "Lâmpada":
             self.color = (0,0,0)
             self.actionable = True
-        elif self.itemInside == "Agente":
+        elif self.itemInside == "Base":
             self.agent = True
-        elif self.itemInside == "Objetivo":
+        elif self.itemInside == "Base":
             self.goal = True
-        elif self.itemInside == "Vitima":
+        elif self.itemInside == "Vitimas":
             self.victim = True
         else:
             self.color = False

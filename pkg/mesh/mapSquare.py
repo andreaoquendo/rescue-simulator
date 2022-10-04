@@ -63,6 +63,8 @@ class MapSquare:
                 ## Nome x,y x,y x,y
                 values = line.split(" ")
                 ## O primeiro dado é o nome do objeto, seguido por varias posicoes 
+                if values[0] == 'Te' or values[0] == 'Ts' or values[0] == 'YMax' or values[0] == 'XMax':
+                    continue
                 things[values.pop(0)] = values
 
             ## Percorre os elementos que foram definidos
@@ -72,19 +74,22 @@ class MapSquare:
                     ## Define que naquela posicao vai ter determinado objeto
                     self.listPlaces[int(pos[0])][int(pos[1])].itemInside = i
                     ## Atualiza a cor do lugar
-                    self.listPlaces[int(pos[0])][int(pos[1])].updateColor()
+                    self.listPlaces[int(pos[0])][int(pos[1])].updateColor() #MUDAR: UPDATE COLOR
 
             ## Seta as posicoes do robo e do objetivo
-            if "Agente" in things:
-                pos = things["Agente"][0].split(",")
+            if "Base" in things:
+                pos = things["Base"][0].split(",")
                 self.posAgent = (int(pos[0]), int(pos[1]))
-            if "Objetivo" in things:
-                pos = things["Objetivo"][0].split(",")
-                self.posGoal = (int(pos[0]), int(pos[1]))
+                #self.posGoal = (int(pos[0]), int(pos[1]))
+                self.posGoal = (19, 19)
+            # if "Objetivo" in things:
+            #    pos = things["Objetivo"][0].split(",")
+                
 
 
     ## Metodo que verifica o clique do mouse
-   
+   ## MUDAR: ESSA FUNÇÃO NÃO É UTILIZADA (APARENTEMENTE)
+
     def checkClick(self, posMouse):
 
         ## Se já tiver selecionado um quadrado antes
