@@ -7,7 +7,7 @@ class ExplorerPlan:
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
-        self.walls = {}
+        self.walls = []
         self.maxRows = maxRows
         self.maxColumns = maxColumns
         self.initialState = initialState
@@ -21,16 +21,19 @@ class ExplorerPlan:
     def updateCurrentState(self, state):
          self.currentState = state
 
-    def updateMatrix(self, before, after, cost, didMove):
+    def updateMatrix(self, previous, expected, moveCost, didMove):
         """Define o estado inicial.
         @param cost: para atualizar a matrix.
         @param row, col: linha e coluna do estado inicial."""
-        if didMove == True and (self.matrix[after.row][after.col] == None or self.matrix[after.row][after.col] > cost+self.matrix[before.row][before.col]):
-            self.matrix[after.row][after.col] = cost+self.matrix[before.row][before.col]
+        if didMove == True and (self.matrix[expected.row][expected.col] == None or self.matrix[expected.row][expected.col] > moveCost+self.matrix[previous.row][previous.col]):
+            self.matrix[expected.row][expected.col] = moveCost+self.matrix[previous.row][previous.col]
         elif didMove == False:
-            self.matrix[after.row][after.col] = -1
+            self.walls.append((expected.row, expected.col))
+            print('MAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIN')
+            if expected.row < 0 or expected.col < 0:
+                return
+            self.matrix[expected.row][expected.col] = -1     
     
-    #def isItTimeToGoBackHome(self, timeLeft, cost, current):
     def isItTimeToGoBackHome(self, timeLeft, cost):
         """Retorna se é momento de fazer o caminho de volta:
         @param timeLeft
@@ -47,19 +50,6 @@ class ExplorerPlan:
         @pram vitals:
         """    
         return
-    #MUDAR, VERIFICAR APENAS DURANTE A EXECUÇÃO
-    # def updateWallsFile(self, row, col, walls = 0):
-        # row = 0
-        # col = 0
-        # for i in walls:
-        #     col = 0
-        #     for j in i:
-        #         if j == 1:
-        #             self.walls.append((row, col))
-        #         col += 1
-        #     row += 1
-       
-        
     
 
     #MUDAR, NÃO VAI MAIS SER RANDOM
@@ -76,16 +66,13 @@ class ExplorerPlan:
                     "SE" : (1, 1),
                     "SO" : (1, -1)}
 
-        # aux = (current.row, current.col)
-        # if self.movement[aux] == None:
-        #     self.movement[aux] = []
-        
-        # len(self.movement[aux])
-
         while True:
             rand = randint(0, 7)
             movDirection = possibilities[rand]
             f = self.isVisitado(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])
+            p = self.isParede(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])
+            if p == True:
+                continue
             chances = randint(0, 100)
             if f == True:
                 if chances <= 10:
@@ -99,6 +86,11 @@ class ExplorerPlan:
 
         return movDirection, state
 
+    def isParede(self, row, col):
+        if (row, col) in self.walls:
+            return True
+        return False
+    
     def isVisitado(self, row, col):
         if self.matrix[row][col] != None:
             return True
@@ -119,6 +111,34 @@ class ExplorerPlan:
 
         return result
 
+    def chooseReturnAction(self):
+        movePos = { (-1, 0): "N" ,
+                    (1, 0): "S" ,
+                    (0, 1): "L" ,
+                    (0, -1): "O",
+                    (-1, 1): "NE",
+                    (-1, -1): "NO",
+                    (1, 1): "SE",
+                    (1, -1): "SO"}
+        
+        pos = self.getLowestDirection()
+        action = movePos[pos]
+        state = State(self.currentState.row + pos[0], self.currentState.col + pos[1])
+        return action, state
+
+    def getLowestDirection(self):
+        low = self.matrix[self.currentState.row][self.currentState.col]
+        row = self.currentState.row
+        col = self.currentState.col
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if self.currentState.row + i < 0 or self.currentState.col + j < 0 or self.matrix[self.currentState.row + i][self.currentState.col + j] == None:
+                    continue
+                if self.matrix[self.currentState.row + i][self.currentState.col + j] < low and self.matrix[self.currentState.row + i][self.currentState.col + j] != -1:
+                    low = self.matrix[self.currentState.row + i][self.currentState.col + j]
+                    row = self.currentState.row + i
+                    col = self.currentState.col + j
+        return (row - self.currentState.row, col - self.currentState.col)
 
     # def do(self):
     #     """

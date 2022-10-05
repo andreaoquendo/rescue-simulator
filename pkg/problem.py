@@ -35,6 +35,7 @@ class Problem:
         @param col: coluna do estado objetivo."""
         self.goalState.row = row
         self.goalState.col = col
+        print('DEFININDO', self.goalState)
 
     def getActionCost(self, action):
         """Retorna o custo da ação.
@@ -53,6 +54,7 @@ class Problem:
         @param currentState: estado atual.
         @return True se o estado atual for igual ao estado objetivo."""
         #IF externo para verificar flag se base é goal
+        print('TESTE GOAL',currentState, self.goalState)
         if currentState == self.goalState:
             return True
         else:
