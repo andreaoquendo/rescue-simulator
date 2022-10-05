@@ -78,13 +78,28 @@ class Model:
         row_dif = to_row - from_row
         col_dif = to_col - from_col
 
-        ## vai na diagonal? Caso sim, nao pode ter paredes acima & dir. ou acima & esq. ou abaixo & dir. ou abaixo & esq.
+        # Vai na diagonal? Caso sim, nao pode ter paredes acima ou dir. ou acima & esq. ou abaixo & dir. ou abaixo & esq.
         if (row_dif !=0 and col_dif != 0):
-            if (self.maze.walls[from_row + row_dif][from_col] == 1 and
+            if (self.maze.walls[from_row + row_dif][from_col] == 1 or
                 self.maze.walls[from_row][from_col + col_dif] == 1):
                 return -1
+
+        return 1
+
+    def isPossibleToMoveDiagonal(self, from_row, from_col, to_row, to_col):
+        row_dif = to_row - from_row
+        col_dif = to_col - from_col
+
+        if from_row + row_dif >= self.rows or from_col + col_dif >= self.rows or from_row + row_dif >= self.rows < 0 or from_col + col_dif >= self.rows < 0:
+            return 0
+            
+        if (row_dif !=0 and col_dif != 0):
+            if (self.maze.walls[from_row + row_dif][from_col] == 1 or
+                self.maze.walls[from_row][from_col + col_dif] == 1):
+                return 0
         
         return 1
+        
 
 
     ## Metodo que atualiza a posicao do agente
@@ -166,7 +181,9 @@ class Model:
         @param victimId é a posição da vítima dentro do vetor de sinais vitais
         @return a lista de sinais vitais ou uma lista vazia caso a vítima nao exista
         """
-        if victimId < self.getNumberOfVictims():
+        if victimId > 40:
+            print('CUIDADO!',victimId)
+        if victimId <= self.getNumberOfVictims():
             return self.maze.vitalSignals[victimId - 1]
 
         return []

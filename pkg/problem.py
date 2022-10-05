@@ -60,36 +60,36 @@ class Problem:
         else:
             return False
 
-    def isPossibleToMove(self, toState):
-        """Verifica se eh possivel ir da posicao atual para o estado (lin, col) considerando 
-        a posicao das paredes do labirinto e movimentos na diagonal
-        @param toState: instancia da classe State - um par (lin, col) - que aqui indica a posicao futura 
-        @return: True quando é possivel ir do estado atual para o estado futuro """
+    # def isPossibleToMove(self, toState):
+    #     """Verifica se eh possivel ir da posicao atual para o estado (lin, col) considerando 
+    #     a posicao das paredes do labirinto e movimentos na diagonal
+    #     @param toState: instancia da classe State - um par (lin, col) - que aqui indica a posicao futura 
+    #     @return: True quando é possivel ir do estado atual para o estado futuro """
 
 
-        ## vai para fora do labirinto
-        if (toState.col < 0 or toState.row < 0):
-            return False
+    #     ## vai para fora do labirinto
+    #     if (toState.col < 0 or toState.row < 0):
+    #         return False
 
-        if (toState.col >= self.maxColumns or toState.row >= self.maxRows):
-            return False
+    #     if (toState.col >= self.maxColumns or toState.row >= self.maxRows):
+    #         return False
         
-        if len(self.walls) == 0:
-            return True
+    #     if len(self.walls) == 0:
+    #         return True
         
-        ## vai para cima de uma parede
-        if (toState.row, toState.col) in self.walls:
-            return False
+    #     ## vai para cima de uma parede
+    #     if (toState.row, toState.col) in self.walls:
+    #         return False
 
-        # vai na diagonal? Caso sim, nao pode ter paredes acima & dir. ou acima & esq. ou abaixo & dir. ou abaixo & esq.
-        delta_row = toState.row - self.currentState.row
-        delta_col = toState.col - self.currentState.col
+    #     # vai na diagonal? Caso sim, nao pode ter paredes acima & dir. ou acima & esq. ou abaixo & dir. ou abaixo & esq.
+    #     delta_row = toState.row - self.currentState.row
+    #     delta_col = toState.col - self.currentState.col
 
-        ## o movimento eh na diagonal
-        if (delta_row !=0 and delta_col != 0):
-            if (self.currentState.row + delta_row, self.currentState.col) in self.walls and (self.currentState.row, self.currentState.col + delta_col) in self.walls:
-                return False
+    #     ## o movimento eh na diagonal
+    #     if (delta_row !=0 and delta_col != 0):
+    #         if (self.currentState.row + delta_row, self.currentState.col) in self.walls and (self.currentState.row, self.currentState.col + delta_col) in self.walls:
+    #             return False
     
-        return True
+    #     return True
 
 

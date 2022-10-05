@@ -21,6 +21,7 @@ class MapSquare:
 
         ## Lista de quadrados
         self.listPlaces = []
+        self.victimsIds = {}
         ## Variavel que armazena qual quadrado foi selecionado
         self.selectPlace = False
 
@@ -69,10 +70,11 @@ class MapSquare:
 
             ## Percorre os elementos que foram definidos
             for i in things:
-                for j in things[i]:
-                    pos = j.split(",")
+                for j in range(len(things[i])):
+                    pos = things[i][j].split(",")
                     ## Define que naquela posicao vai ter determinado objeto
                     self.listPlaces[int(pos[0])][int(pos[1])].itemInside = i
+                    self.victimsIds[(int(pos[0]), int(pos[1]))] = j+1
                     ## Atualiza a cor do lugar
                     self.listPlaces[int(pos[0])][int(pos[1])].updateColor() #MUDAR: UPDATE COLOR
 
@@ -80,8 +82,8 @@ class MapSquare:
             if "Base" in things:
                 pos = things["Base"][0].split(",")
                 self.posAgent = (int(pos[0]), int(pos[1]))
-                #self.posGoal = (int(pos[0]), int(pos[1]))
-                self.posGoal = (19, 19)
+                self.posGoal = (int(pos[0]), int(pos[1]))
+                # self.posGoal = (19, 19)
             # if "Objetivo" in things:
             #    pos = things["Objetivo"][0].split(",")
                 
@@ -129,6 +131,9 @@ class MapSquare:
     ## Metodo que retorna a lista de quadrados
     def getListPlaces(self):
         return self.listPlaces
+
+    def getVictimId(self, pos):
+        return self.victimsIds[pos]
 
     ## Salva o mapa em um arquivo
     def save(self):

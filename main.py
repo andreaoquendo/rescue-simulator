@@ -57,16 +57,19 @@ def main():
     agent = AgentRnd(model,configDict)
 
     ## Ciclo de raciocínio do agente
-    agent.deliberate()
-    while agent.deliberate() != -1:
+    aux = agent.deliberate()
+    while aux != -1:
+        if aux == 0:
+            return
         model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        time.sleep(0.01) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        aux = agent.deliberate()
 
-    agent.yeahItsTimeToGoBackHome()
-    while agent.yeahItsTimeToGoBackHome() != -1:
-        model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
-    model.draw()    
+    # agent.yeahItsTimeToGoBackHome()
+    # while agent.yeahItsTimeToGoBackHome() != -1:
+    #     model.draw()
+    #     #time.sleep(0.01) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    # model.draw()    
         
 if __name__ == '__main__':
     main()

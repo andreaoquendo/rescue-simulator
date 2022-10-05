@@ -100,100 +100,22 @@ class AgentRnd:
         self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
         print("Ag cre que esta em: ", self.currentState)
 
+        # Para o estado anterior em que estávamos, o resultado deve ser o agora
+        self.plan.setResultOfAction(self.previousState, self.previousAction)
+
         ## Verifica se a execução do acao do ciclo anterior funcionou ou nao
         if not (self.currentState == self.expectedState):
             print("---> erro na execucao da acao ", self.previousAction, ": esperava estar em ", self.expectedState, ", mas estou em ", self.currentState)
-        move = self.currentState == self.expectedState 
-        self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), move)
+        move = self.currentState == self.expectedState
 
-        ## Funcionou ou nao, vou somar o custo da acao com o total 
-        self.costAll += self.prob.getActionCost(self.previousAction)
-        print ("Custo até o momento (com a ação escolhida):", self.costAll) 
-
-        ## consome o tempo gasto
-        self.tl -= self.prob.getActionCost(self.previousAction)
-        print("Tempo disponivel: ", self.tl)
-
-        #MUDAR botar um if para matar  o programa se acabou o tempo
-        if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
-            print("É hora de voltar para casa!")
-            return -1
-
-        if self.tl <= 0:
-            print('CABOU O TEMPO')
-            return -1
-
-        ## Verifica se atingiu o estado objetivo
-        ## Poderia ser outra condição, como atingiu o custo máximo de operação
-        # if self.prob.goalTest(self.currentState):
-        #     print("!!! Objetivo atingido !!!")
-        #     del self.libPlan[0]  ## retira plano da biblioteca
+        if self.previousAction in ['SO', 'SE', 'NO', 'NE'] and move == False:
+            move = self.model.isPossibleToMoveDiagonal(self.previousState.row, self.previousState.col, self.expectedState.row, self.expectedState.col)
+            self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), move)
+        elif move == False: 
+            self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), -1)
+        else:
+            self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), 1)
         
-        ## Verifica se tem vitima na posicao atual    
-        victimId = self.victimPresenceSensor()
-        if victimId > 0:
-            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
-            self.plan.setVictimsFile(self.currentState, self.victimVitalSignalsSensor(victimId))
-            #print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
-
-        ## Define a proxima acao a ser executada
-        ## currentAction eh uma tupla na forma: <direcao>, <state>
-        result = self.plan.chooseAction()
-        print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
-
-        #MUDAR Verificar se o resultado deu em parede
-        # def updateWallsFile():
-        # 
-
-        ## Executa esse acao, atraves do metodo executeGo. Mas dev
-        self.executeGo(result[0])
-
-        self.previousAction = result[0]
-        
-        self.expectedState = result[1]       
-
-        return 1
-
-    def yeahItsTimeToGoBackHome(self):
-        print('VOLTANO MAMAIN')
-
-        # if self.prob.goalTest(self.currentState):
-        #     print("!!! Objetivo atingido !!!")
-        #     del self.libPlan[0]  ## retira plano da biblioteca
-
-        # ## Verifica se há algum plano a ser executado
-        # if len(self.libPlan) == 0:
-        #     return -1   ## fim da execucao do agente, acabaram os planos
-        
-        # self.plan = self.libPlan[0]
-
-        print("\n*** Inicio do ciclo raciocinio ***")
-        print("Pos agente no amb.: ", self.positionSensor())
-
-        ## Redefine o estado atual do agente de acordo com o resultado da execução da ação do ciclo anterior
-        # self.previousState = self.currentState
-        self.currentState = self.positionSensor()
-        self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
-        print("Ag cre que esta em: ", self.currentState)
-
-        if self.prob.goalTest(self.currentState):
-            print("!!! Objetivo atingido !!!")
-            del self.libPlan[0]  ## retira plano da biblioteca
-
-        ## Verifica se há algum plano a ser executado
-        if len(self.libPlan) == 0:
-            return -1   ## fim da execucao do agente, acabaram os planos 
-
-        if self.tl <= 0:
-            print('CABOU O TEMPO')
-            return -1 
-
-        ## Verifica se a execução do acao do ciclo anterior funcionou ou nao
-        # if not (self.currentState == self.expectedState):
-        #     print("---> erro na execucao da acao ", self.previousAction, ": esperava estar em ", self.expectedState, ", mas estou em ", self.currentState)
-        # move = self.currentState == self.expectedState 
-        # self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), move)
-
         ## Funcionou ou nao, vou somar o custo da acao com o total 
         self.costAll += self.prob.getActionCost(self.previousAction)
         print ("Custo até o momento (com a ação escolhida):", self.costAll) 
@@ -205,34 +127,83 @@ class AgentRnd:
         #MUDAR botar um if para matar  o programa se acabou o tempo
         # if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
         #     print("É hora de voltar para casa!")
+        #     return -1
 
-        ## Verifica se atingiu o estado objetivo
-        ## Poderia ser outra condição, como atingiu o custo máximo de operação
-        # if self.prob.goalTest(self.currentState):
-        #     print("!!! Objetivo atingido !!!")
-        #     del self.libPlan[0]  ## retira plano da biblioteca
+        # if self.tl <= 0:
+        #     print('CABOU O TEMPO')
+        #     return -1
         
         ## Verifica se tem vitima na posicao atual    
-        # victimId = self.victimPresenceSensor()
-        # if victimId > 0:
-        #     print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
-        #     self.plan.setVictimsFile(self.currentState, self.victimVitalSignalsSensor(victimId))
-        #     #print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
+        victimId = self.victimPresenceSensor()
+        if victimId > 0 and not self.plan.letItDie(victimId):
+            self.costAll += 2.0
+            self.tl -= 2.0
+            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
+            self.plan.setVictimsFile(self.victimVitalSignalsSensor(victimId))
+            #print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
-        result = self.plan.chooseReturnAction()
+        
+        result = self.plan.chooseAction()
+        
+        if result == None:
+            print('VOU EMBORA')
+            return 0
+
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
-        #MUDAR Verificar se o resultado deu em parede
-        # def updateWallsFile():
-        # 
-
-        ## Executa esse acao, atraves do metodo executeGo. Mas dev
         self.executeGo(result[0])
 
         self.previousAction = result[0]
         
+        self.expectedState = result[1]       
+
+        return 1
+
+    def yeahItsTimeToGoBackHome(self):
+        print('VOLTANO MAMAIN')
+
+        print("\n*** Inicio do ciclo raciocinio ***")
+        print("Pos agente no amb.: ", self.positionSensor())
+
+        ## Redefine o estado atual do agente de acordo com o resultado da execução da ação do ciclo anterior
+        # self.previousState = self.currentState
+        self.currentState = self.positionSensor()
+        self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
+        print("Ag cre que esta em: ", self.currentState)
+
+        if self.prob.goalTest(self.currentState):
+            self.plan.saveVictimsFile()
+            print("!!! Objetivo atingido !!!")
+            del self.libPlan[0]  ## retira plano da biblioteca
+
+        ## Verifica se há algum plano a ser executado
+        if len(self.libPlan) == 0:
+            return -1   ## fim da execucao do agente, acabaram os planos 
+
+        if self.tl <= 0:
+            print('CABOU O TEMPO')
+            return -1 
+
+
+        ## Funcionou ou nao, vou somar o custo da acao com o total 
+        self.costAll += self.prob.getActionCost(self.previousAction)
+        print ("Custo até o momento (com a ação escolhida):", self.costAll) 
+
+        ## consome o tempo gasto
+        self.tl -= self.prob.getActionCost(self.previousAction)
+        print("Tempo disponivel: ", self.tl)
+
+        ## Define a proxima acao a ser executada
+        ## currentAction eh uma tupla na forma: <direcao>, <state>
+        result = self.plan.chooseReturnAction()
+        
+        print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
+
+        ## Executa esse acao, atraves do metodo executeGo. Mas dev
+        self.executeGo(result[0])
+        self.previousAction = result[0]
         self.expectedState = result[1]     
 
         return 1

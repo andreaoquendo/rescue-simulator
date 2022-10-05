@@ -64,7 +64,7 @@ class Maze:
     def updateWalls(self):
        
         ## Metodo que atualiza a lista dos objetos (vitimas) que estao no labirinto
-        vs_file = open(os.path.join("config_data" ,"sinaisvitais.txt"),"r")
+        vs_file = open(os.path.join("config_data" ,"sinais_vitais.txt"),"r")
         ##diff_file = open(os.path.join("config_data" ,"difacesso.txt"),"r")
 
 
@@ -80,25 +80,20 @@ class Maze:
                     pos = j.ide
                     #MUDAR: CASO A SEQUÊNCIA DAS VÍTIMAS NAO ESTEJA IGUAL AO ARQUIVO
                     self.numberOfVictims = self.numberOfVictims + 1
-                    self.victims[pos[0]][pos[1]] = self.numberOfVictims
+                    self.victims[pos[0]][pos[1]] = self.board.getVictimId((pos[0],pos[1]))
                     
                     vs_line = vs_file.readline()
                     if vs_line:
                         values = [float(signal) for signal in vs_line.split(",")]
+                        values[0] = int(values[0])
                         print("sinais vitais da vitima em (", pos[0], ",", pos[1], ") : ", values)
                         self.vitalSignals.append([])
                         self.vitalSignals[self.numberOfVictims-1].append(values)
+                        self.vitalSignals.sort()
                     else:
                         print("!!! warning: número de vítimas do ambiente maior do que número de sinais vitais")
                 
-                    # diff_line = diff_file.readline()
-                    # if diff_line:
-                    #     values = [float(signal) for signal in diff_line.split(" ")]
-                    #     print("dif. de acesso a vitima em (", pos[0], ",", pos[1], ") : ", values)
-                    #     self.diffAccess.append([])
-                    #     self.diffAccess[self.numberOfVictims-1].append(values)
-                    # else:
-                    #     print("!!! warning: número de vítimas do ambiente maior do que número de dif. de acesso")
+        print('OLHA',len(self.vitalSignals))
 
     ## Metodo que retorna a instancia criada da mesh
     def getBoard(self):
