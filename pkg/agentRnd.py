@@ -125,9 +125,11 @@ class AgentRnd:
         print("Tempo disponivel: ", self.tl)
 
         #MUDAR botar um if para matar  o programa se acabou o tempo
-        # if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
-        #     print("É hora de voltar para casa!")
-        #     return -1
+        if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
+            self.plan.analyzePosition()
+            self.plan.setResultOfAction(self.previousState, self.previousAction)
+            print("É hora de voltar para casa!")
+            return -1
 
         # if self.tl <= 0:
         #     print('CABOU O TEMPO')
@@ -197,7 +199,7 @@ class AgentRnd:
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
-        result = self.plan.chooseReturnAction()
+        result = self.plan.chooseReturnActionDFS()
         
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
@@ -242,11 +244,6 @@ class AgentRnd:
         @param o id da vítima
         @return a lista de sinais vitais (ou uma lista vazia se não tem vítima com o id)"""     
         return self.model.getVictimVitalSignals(victimId)
-    
-    # def obstaclePresenceSensor(self):
-    #     """Simula um sensor que realiza a deteccao de presenca de obstáculo na posicao onde o agente se encontra no ambiente
-    #         @return retorna bool"""     
-    #     return self.model.isPossibleToMove()
 
     def victimDiffOfAcessSensor(self, victimId):
         """Simula um sensor que realiza a leitura dos dados relativos à dificuldade de acesso a vítima

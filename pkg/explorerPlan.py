@@ -192,7 +192,7 @@ class ExplorerPlan:
                 print('parede is possibilities', possibilities)
                 r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
                 self.result[curr_pos][r_possibilities.index(movDirection)] = self.currentState
-            elif self.isVisitado(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1]) and len(self.untried[curr_pos]) > 1:
+            elif self.isVisitado(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1]) and len(self.untried[curr_pos]) > 1 and movDirection in ["N", "S", "L", "O"]:
                 r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
                 self.result[curr_pos][r_possibilities.index(movDirection)] = state  
                 self.unbacktracked[curr_pos].append(movDirection)
@@ -219,6 +219,44 @@ class ExplorerPlan:
             return movDirection, state
 
         print('enviando none')
+
+    def analyzePosition(self):
+        """ Sorteia uma direcao e calcula a posicao futura do agente 
+        @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
+
+        #Seta as primeiras variáveis
+        possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+        #Para que as primeiras ações a serem executadas sejam as de custo 1
+        print('possibilities', possibilities)
+        possibilities.reverse()
+    
+        movePos = { "N" : (-1, 0),
+                    "S" : (1, 0),
+                    "L" : (0, 1),
+                    "O" : (0, -1),
+                    "NE" : (-1, 1),
+                    "NO" : (-1, -1),
+                    "SE" : (1, 1),
+                    "SO" : (1, -1)}
+        
+        oppositeDirection = { "N" : "S",
+                    "S" : "N",
+                    "L" :"O",
+                    "O" : "L",
+                    "NE" :"SO",
+                    "NO" : "SE",
+                    "SE" : "NO",
+                    "SO" :"NE" }
+        #Se é a primeira vez passando por aqui, ele recebe todas essas possíveis ações
+        # Ele não tem nenhum resultado salvo
+        # Todas as possibilidades estão como não tentadas
+        # As ações que ele ainda não desfez está vazia, só deve ser preenchida ao entrar nela de alguma forma
+        curr_pos = (self.currentState.row, self.currentState.col)
+        if curr_pos not in self.untried.keys():
+            self.result[curr_pos] = [None]*8
+            self.untried[curr_pos] = possibilities
+            self.unbacktracked[curr_pos] = []
+            self.unbackbacktracked[curr_pos] = []
 
     def setResultOfAction(self, previousState, previousAction):
 
@@ -286,6 +324,43 @@ class ExplorerPlan:
         action = movePos[pos]
         state = State(self.currentState.row + pos[0], self.currentState.col + pos[1])
         return action, state
+
+    def chooseReturnActionDFS(self):
+
+        movePos = { "N" : (-1, 0),
+                    "S" : (1, 0),
+                    "L" : (0, 1),
+                    "O" : (0, -1),
+                    "NE" : (-1, 1),
+                    "NO" : (-1, -1),
+                    "SE" : (1, 1),
+                    "SO" : (1, -1)}
+        
+        movDirection = self.getLowestDirectionDFS()
+        state = State(self.currentState.row + movePos[movDirection][0], self.currentState.col +movePos[movDirection][1])
+        return movDirection, state
+
+    def getLowestDirectionDFS(self):
+        possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+        curr = (self.currentState.row, self.currentState.col)
+        lowestPos = self.result[curr][0]
+        moveDirection = "N"
+
+        for i in range(0,8):
+            if not lowestPos:
+                if not self.result[curr][i]:
+                    continue
+                val = self.matrix(self.result[curr][i].row, self.result[curr][i].col)
+                lowest = self.matrix(lowestPos.row, lowestPos.col)
+
+                if self.result[curr][i] != self.currentState and val <= lowest:
+                    lowestPos = self.result[curr][i]
+                    moveDirection = possibilities[i]
+            else:
+                lowestPos = self.result[curr][i]
+                moveDirection = possibilities[i]
+
+        return moveDirection
 
     def getLowestDirection(self):
         low = -10
