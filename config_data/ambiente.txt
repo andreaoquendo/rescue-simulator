@@ -1,4 +1,4 @@
-Te 300
+Te 600
 Ts 400
 Base 0,0
 XMax 20

@@ -157,6 +157,9 @@ class AgentRnd:
             self.plan.analyzePosition()
             
             self.plan.setResultOfAction(self.previousState, self.previousAction)
+            self.costAll -= self.prob.getActionCost(self.previousAction)
+            self.tl += self.prob.getActionCost(self.previousAction)
+            self.plan.saveVictimsFile()
             print("É hora de voltar para casa!")
             return -1
 
@@ -192,7 +195,7 @@ class AgentRnd:
         print("Ag cre que esta em: ", self.currentState)
 
         if self.prob.goalTest(self.currentState):
-            self.plan.saveVictimsFile()
+            
             print("!!! Objetivo atingido !!!")
             del self.libPlan[0]  ## retira plano da biblioteca
 

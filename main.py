@@ -62,13 +62,13 @@ def main():
         if aux == 0:
             return
         model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
         aux = agent.deliberate()
 
     agent.yeahItsTimeToGoBackHome()
     while agent.yeahItsTimeToGoBackHome() != -1:
         model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
     model.draw()    
         
 if __name__ == '__main__':

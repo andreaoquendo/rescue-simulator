@@ -356,7 +356,6 @@ class ExplorerPlan:
 
         
         curr = (self.currentState.row, self.currentState.col)
-        print(self.result[curr])
         # lowestPos = self.result[curr][0]
         # moveDirection = "N"
 
