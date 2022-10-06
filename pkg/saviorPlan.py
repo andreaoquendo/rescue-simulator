@@ -5,7 +5,7 @@ from random import randint
 from state import State
 
 class SaviorPlan:
-    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square", explorerSaw = []):
+    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square"):
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
@@ -17,10 +17,10 @@ class SaviorPlan:
         self.goalPos = goal
         self.actions = []
         self.movement = {}
-        self.matrix = [] # MUDAR: Não façam isso em casa
-        self.matrix = explorerSaw
+        self.matrix = [[]]
         self.file = ''
         self.victims = {}
+        self.nodes = []
 
         self.actionsDFS = {}
         self.result = {}
@@ -28,48 +28,177 @@ class SaviorPlan:
         self.unbacktracked = {}
         self.unbackbacktracked = {}
         self.previousDirection = "nop"
+        self.foi = False
 
-    def createPlan(self):
+    def setInformation(self, matrix, result):
+        self.matrix = matrix
+        self.result = result
+
+    def createPlan(self, victimsPos):
         #Loop
             #Achar a vitima mais próxima
                 #Verificar se dá tempo
                 #Adicionar ela na lista (com o caminho até ela)
-                
-        victimsPos = self.getClosestVictim()
-        i = 0
-        while True:
-            #self.victimsSaved.append(data.victim)
-            self.createPath(victimsPos[i]) #self.savingPath.append(data)
-            self.savePath() #self.savingPath.append(data)
-            i += 1
-            if self.isItTimeToGoBackHome():
-                break
-            
+        self.goalPos = (victimsPos[1], victimsPos[2])
+        print('VITIMA', (victimsPos[1], victimsPos[2]))
+        self.nodes = []
+        self.createNode((self.currentState.row, self.currentState.col), 0, (self.currentState.row, self.currentState.col), None)
+        print('PRIMEIRO',self.nodes[0])
+        self.pathList = self.findPath(self.nodes[0], (victimsPos[1],victimsPos[2])) #self.savingPath.append(data)
+        path = self.createPath()
+        print('CAMINHO', path)
+
+        self.foi = True
+        #self.savePath() #self.savingPath.append(data)            
         #chamar executePlan no agente    
-        return
+        return path
 
     def executePlan(self):
         self.go() #execute path
-        self.saveVictim()
+        #self.saveVictim()
+
+    def go(self):
+        return
 
     def getClosestVictim(self):
         file = open(os.path.join(".", "vitimas_posicoes.txt"), "r")
 
-        victims = {}
         victimsPos = []
         for line in file:
             values = line.split(',')
-            tup = (self.matrix[values[1]][values[2]],values[1],values[2])
+            tup = (self.matrix[int(values[1])][int(values[2])],int(values[1]),int(values[2]))
             victimsPos.append(tup)
             
         victimsPos.sort()
 
         return victimsPos
 
-    def createPath(self, victimsPos):
-        return
+    def createNode(self, posAtual, g, posVizinha, conexao):
+        # Cria um node que guarda os valores da posição, G, H e a conexão
+        posObjetivo = self.goalPos
+        
+        dif = (abs(posAtual[0] - posObjetivo[0]), abs(posAtual[1] - posObjetivo[1]))
+        self.nodes.append((posAtual, self.getDistance(posAtual, posVizinha) + g, min(dif[0],dif[1])*1.5 + abs(dif[0] - dif[1]), conexao))
+
+    def getDistance(self, posAtual, posVizinha):
+        if posAtual == posVizinha: 
+            return 0
+        
+        moveDirection = -1
+        c = 0
+
+        if posAtual[0] >= 0 and posAtual[1] >= 0:
+            for i in range(0,8):
+                if self.result[posAtual][i] != None:
+                    redor = (self.result[posAtual][i].row, self.result[posAtual][i].col)
+                    if redor == posVizinha:
+                        moveDirection = i
+
+        if moveDirection > 3:
+            c = 1.5
+        else:
+            c = 1
+
+        return c
 
 
+    #retorna uma lista de nodes vizinhos
+    def vizinhos(self, node):
+
+        print('VIZINHOS DO',node[0])
+        posAtual = node[0]
+        g = node[1]
+        vizinhos = []
+        listaPos = []
+
+        if posAtual[0] >= 0 and posAtual[1] >= 0:
+            for i in range(0,8):
+                if self.result[posAtual][i] != None:
+                    redor = (self.result[posAtual][i].row, self.result[posAtual][i].col)
+                    if redor != posAtual:
+                        self.createNode(redor, g, posAtual, None)
+                        listaPos.append(redor)
+
+        for n in self.nodes:
+            for pos in listaPos:
+                if n[0] == pos:
+                    vizinhos.append(n)
+
+        return vizinhos
+
+    #current é o node atual
+    def findPath(self, start, goal):
+        procurar = []
+        procurar.append(start)
+        processados = []
+
+        while len(procurar) != 0:
+            current = procurar[0]
+            for node in procurar:
+                if (node[1] + node[2]) < (current[1] + current[2]) or ((node[1] + node[2]) == (current[1] + current[2]) and node[2] < current[2]):
+                    current = node
+
+            print('ANTES', len(processados),len(procurar))
+            processados.append(current)
+            procurar.remove(current)
+            print('DEPOIS', len(processados),len(procurar))
+
+            if current[0] == goal:
+                print('FOIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII')
+                currentInPath = current
+                path =[]
+                while currentInPath != start:
+                    path.append(currentInPath)
+                    currentInPath = currentInPath[3]
+                print(path)
+                return path
+            
+            vizinhos = self.vizinhos(current)
+            for vizinho in vizinhos:
+                inProcessados = False
+                inProcurar = False
+                for procs in processados:
+                    if vizinho[0] == procs[0] and vizinho[1] == procs[1]:
+                        inProcessados = True
+
+                if not inProcessados:
+                    custoVizinho = current[1] + self.getDistance(current[0], vizinho[0])
+                    for proc in procurar:
+                        if vizinho[0] == proc[0] and vizinho[1] == proc[1]:
+                            inProcurar = True
+                    if not inProcurar or custoVizinho < vizinho[1]:
+                        viz = list(vizinho)
+                        viz[1] = custoVizinho
+                        viz[3] = current
+                        vizinho = tuple(viz)
+
+                        if not inProcurar:
+                            procurar.append(vizinho)  
+                    
+
+    def createPath(self):
+        movePos = { 0 : "S" ,
+                    1: "N" ,
+                    2: "O" ,
+                    3: "L",
+                    4: "SO",
+                    5: "SE",
+                    6: "NO",
+                    7: "NE"}
+        path = []
+
+        for node in self.pathList:
+            current = node[0]
+            next = node[3][0]
+            #if current[0] >= 0 and current[1] >= 0:
+            for i in range(0,8):
+                if self.result[current][i] != None:
+                    redor = (self.result[current][i].row, self.result[current][i].col)
+                    if redor == next:
+                        print('TRUE', redor, next)
+                        path.append(movePos[i])
+
+        return list(reversed(path))
 
     def updateCurrentState(self, state):
         """Faz o upload do current state dentro do plano.

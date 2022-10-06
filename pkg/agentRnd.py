@@ -277,3 +277,6 @@ class AgentRnd:
 
     def actionDo(self, posAction, action = True):
         self.model.do(posAction, action)
+
+    def giveInformantion(self):
+        return (self.plan.matrix, self.plan.result)

@@ -6,6 +6,7 @@ import time
 sys.path.append(os.path.join("pkg"))
 from model import Model
 from agentRnd import AgentRnd
+from pkg.agentSavior import AgentSavior
 
 
 ## Metodo utilizado para permitir que o usuario construa o labirindo clicando em cima
@@ -54,22 +55,41 @@ def main():
     model.draw()
 
     # Cria um agente
-    agent = AgentRnd(model,configDict)
+    agentE = AgentRnd(model,configDict)
 
     ## Ciclo de raciocínio do agente
-    aux = agent.deliberate()
+    aux = agentE.deliberate()
     while aux != -1:
         if aux == 0:
             return
         model.draw()
         #time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
-        aux = agent.deliberate()
+        aux = agentE.deliberate()
 
-    agent.yeahItsTimeToGoBackHome()
-    while agent.yeahItsTimeToGoBackHome() != -1:
+    agentE.yeahItsTimeToGoBackHome()
+    while agentE.yeahItsTimeToGoBackHome() != -1:
+        model.draw()
+        #time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    model.draw()
+
+    agentS = AgentSavior(model,configDict)
+    info = agentE.giveInformantion()
+    agentS.receiveInformation(info[0], info[1]) 
+
+    ## Ciclo de raciocínio do agente
+    aux = agentS.deliberate()
+    while aux != -1:
+        if aux == 0:
+            return
         model.draw()
         time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
-    model.draw()    
+        aux = agentS.deliberate()
+
+    # agentS.yeahItsTimeToGoBackHome()
+    # while agentS.yeahItsTimeToGoBackHome() != -1:
+    #     model.draw()
+    #     time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    # model.draw()     
         
 if __name__ == '__main__':
     main()
