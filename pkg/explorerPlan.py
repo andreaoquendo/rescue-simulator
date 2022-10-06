@@ -1,3 +1,4 @@
+from cmath import exp
 import os
 from pickle import TRUE
 from random import randint
@@ -39,13 +40,46 @@ class ExplorerPlan:
         @param row, col: linha e coluna do estado inicial."""
         if didMove == 1 and (self.matrix[expected.row][expected.col] == None or self.matrix[expected.row][expected.col] > moveCost+self.matrix[previous.row][previous.col]):
             self.matrix[expected.row][expected.col] = moveCost+self.matrix[previous.row][previous.col]
+        # if didMove == 1 :
+        #     m = self.getLowestCost(previous)
+        #     self.matrix[expected.row][expected.col] = m[0]+m[1]
         elif didMove == -1:
             self.walls.append((expected.row, expected.col))
             if expected.row < 0 or expected.col < 0:
                 return
             self.matrix[expected.row][expected.col] = -1
+        
+        print('valor na matriz: ', self.matrix[expected.row][expected.col])
+    
+    def getLowestCost(self, expected):
+        possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+        
+        curr = (expected.row, expected.col)
+
+        if curr not in self.result.keys():
+            return 0, 0
+
+        for i in range(0,8):
+            if self.result[curr][i] != None:
+                lowestPos = self.result[curr][i]
+                moveDirection = possibilities[i]
+                break
+
+        for i in range(0,8):
+            if not self.result[curr][i]:
+                continue
+            val = self.matrix[self.result[curr][i].row][self.result[curr][i].col]
+            lowest = self.matrix[lowestPos.row][lowestPos.col]
+            if self.result[curr][i] != self.currentState and val <= lowest:
+                lowestPos = self.result[curr][i]
+                moveDirection = possibilities[i]
+        
+        if moveDirection in ["NE", "NO", "SE", "SO"]:
+            c = 1.5
         else:
-            return    
+            c = 1
+
+        return c, lowest
     
     def isItTimeToGoBackHome(self, timeLeft, cost):
         """Retorna se é momento de fazer o caminho de volta:
@@ -58,18 +92,16 @@ class ExplorerPlan:
         return False
 
     def setVictimsFile(self, vitals):
-        """ Faz um update do arquivo de vítimas:
-        @param current:
-        @pram vitals:
+        """ Adiciona vítima
         """    
-        print('MAAAAAAAAAAAAAAAAAAAAAAAAAAAAE O FORNINHOOOOOOOOOOOOOOOOOOOOOOOOO')
-        print(vitals[0])
         self.victims[vitals[0][0]] = self.currentState
         vitals[0] = [str(x) for x in vitals[0]]
         line = ','.join(vitals[0]) + '\n'
         self.file += line
 
     def saveVictimsFile(self):
+        """ Salva o arquivo com os dados vitais de todas as vítimas
+        """  
         arquivo = open(os.path.join(".", "vitimas_encontradas.txt"), "w")
         arquivo.writelines(self.file)
         arquivo.close()
@@ -183,7 +215,6 @@ class ExplorerPlan:
         # Não esquecer de reservar o result depois
         # No unbacktracked ele precisa saber qual foi o previous state
         while len(self.untried[curr_pos]) > 0 :
-            print('untried: ', self.untried[curr_pos])
             if self.previousDirection == "nop" or self.untried[curr_pos][-1] == oppositeDirection[self.previousDirection] or len(self.untried[curr_pos]) <= 1:
                 movDirection = self.untried[curr_pos].pop()
             else:
@@ -205,7 +236,6 @@ class ExplorerPlan:
 
         # No unbacktracked só queremos saber qual foi a ação que levou ela a fazer o que fez
         if len(self.unbacktracked[curr_pos]) > 0:
-            print('unbacktrack', self.unbacktracked[curr_pos])
             
             movDirection = self.unbacktracked[curr_pos][0]
             self.unbackbacktracked[curr_pos].append(movDirection)
@@ -215,25 +245,21 @@ class ExplorerPlan:
             self.previousDirection = movDirection
             return movDirection, state
         
-        print('cheguei', self.unbackbacktracked[curr_pos])
         if  len(self.unbackbacktracked[curr_pos]) > 0:
-            print('cheguei', self.unbackbacktracked[curr_pos])
             movDirection = self.unbackbacktracked[curr_pos].pop()
             state = State(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])
             return movDirection, state
 
-        print('enviando none')
 
     def analyzePosition(self):
         """ Sorteia uma direcao e calcula a posicao futura do agente 
         @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
-        print('aqui está a posição: ', self.currentState)
+
     
 
         #Seta as primeiras variáveis
         possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
         #Para que as primeiras ações a serem executadas sejam as de custo 1
-        print('possibilities', possibilities)
         possibilities.reverse()
     
         movePos = { "N" : (-1, 0),
