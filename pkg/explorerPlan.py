@@ -3,6 +3,7 @@ import os
 from pickle import TRUE
 from random import randint
 from state import State
+import numpy as np
 
 class ExplorerPlan:
     def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square"):
@@ -17,7 +18,7 @@ class ExplorerPlan:
         self.goalPos = goal
         self.actions = []
         self.movement = {}
-        self.matrix = [[None for j in range(100)]for i in range(100)] # MUDAR: Não façam isso em casa
+        self.matrix = [[None for j in range(22)]for i in range(22)] # MUDAR: Não façam isso em casa
         self.matrix[initialState.row][initialState.col] = 0.0
         self.file = ''
         self.victims = {}
@@ -309,6 +310,15 @@ class ExplorerPlan:
         print('len self untried', len(self.untried[prev_pos]))
         self.result[prev_pos][possibilities.index(previousAction)] = self.currentState
 
+        movePos = { "N" : (-1, 0),
+                    "S" : (1, 0),
+                    "L" : (0, 1),
+                    "O" : (0, -1),
+                    "NE" : (-1, 1),
+                    "NO" : (-1, -1),
+                    "SE" : (1, 1),
+                    "SO" : (1, -1)}
+
         oppositeDirection = { "N" : "S",
                     "S" : "N",
                     "L" :"O",
@@ -324,6 +334,19 @@ class ExplorerPlan:
             print( 'opposite', oppositeDirection[previousAction])
             if previousAction not in self.unbacktracked[prev_pos]:
                 self.unbacktracked[prev_pos].append(previousAction)
+        
+        if self.matrix[prev_pos[0] + movePos["NO"][0]][prev_pos[1]+ movePos["NO"][1]] and self.result[prev_pos][possibilities.index("N")] != None and self.result[prev_pos][possibilities.index("O")] != None:
+            if "NO" in self.untried[prev_pos]:
+                self.untried[prev_pos].remove("NO")
+        if self.matrix[prev_pos[0] + movePos["NE"][0]][prev_pos[1]+ movePos["NE"][1]] and self.result[prev_pos][possibilities.index("N")] != None and self.result[prev_pos][possibilities.index("L")] != None:
+            if "NE" in self.untried[prev_pos]:
+                self.untried[prev_pos].remove("NE")
+        if self.matrix[prev_pos[0] + movePos["SO"][0]][prev_pos[1]+ movePos["SO"][1]] and self.result[prev_pos][possibilities.index("S")] != None and self.result[prev_pos][possibilities.index("O")] != None:
+            if "SO" in self.untried[prev_pos]:
+                self.untried[prev_pos].remove("SO")
+        if self.matrix[prev_pos[0] + movePos["SE"][0]][prev_pos[1]+ movePos["SE"][1]] and self.result[prev_pos][possibilities.index("S")] != None and self.result[prev_pos][possibilities.index("L")] != None:
+            if "SE" in self.untried[prev_pos]:
+                self.untried[prev_pos].remove("SE")
 
     def isParede(self, row, col):
         if (row, col) in self.walls:
@@ -373,6 +396,7 @@ class ExplorerPlan:
                     "SE" : (1, 1),
                     "SO" : (1, -1)}
         
+        # Queremos encontrar qual direção é a que tem menor valor na matriz
         movDirection = self.getLowestDirectionDFS()
         state = State(self.currentState.row + movePos[movDirection][0], self.currentState.col +movePos[movDirection][1])
         return movDirection, state
@@ -382,15 +406,15 @@ class ExplorerPlan:
 
         
         curr = (self.currentState.row, self.currentState.col)
-        # lowestPos = self.result[curr][0]
-        # moveDirection = "N"
 
+        # Procura um ponto de comparação
         for i in range(0,8):
             if self.result[curr][i] != None:
-                lowestPos = self.result[curr][i]
+                lowestPos = self.result[curr][i] #lowestPos => state
                 moveDirection = possibilities[i]
                 break
-
+        
+        # Atualiza o lowestPos de fato
         for i in range(0,8):
             if not self.result[curr][i]:
                 continue

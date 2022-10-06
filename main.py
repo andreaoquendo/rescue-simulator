@@ -62,7 +62,7 @@ def main():
         if aux == 0:
             return
         model.draw()
-        time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        #time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
         aux = agent.deliberate()
 
     agent.yeahItsTimeToGoBackHome()
