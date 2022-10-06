@@ -174,6 +174,11 @@ class ExplorerPlan:
             self.unbacktracked[curr_pos] = []
             self.unbackbacktracked[curr_pos] = []
 
+            if self.previousDirection !="nop":
+                state = State(self.currentState.row - movePos[self.previousDirection][0], self.currentState.col - movePos[self.previousDirection][1])
+                r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+                self.result[curr_pos][r_possibilities.index(oppositeDirection[self.previousDirection])] = state
+
         # Partimos primeiro das opções não tentadas primeiro
         # Não esquecer de reservar o result depois
         # No unbacktracked ele precisa saber qual foi o previous state
@@ -189,14 +194,13 @@ class ExplorerPlan:
             state = State(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])
             self.previousDirection = movDirection
             if(self.isParede(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])):
-                print('parede is possibilities', possibilities)
                 r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
                 self.result[curr_pos][r_possibilities.index(movDirection)] = self.currentState
             elif self.isVisitado(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1]) and len(self.untried[curr_pos]) > 1 and movDirection in ["N", "S", "L", "O"]:
                 r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
                 self.result[curr_pos][r_possibilities.index(movDirection)] = state  
                 self.unbacktracked[curr_pos].append(movDirection)
-            else:
+            else: 
                 return movDirection, state
 
         # No unbacktracked só queremos saber qual foi a ação que levou ela a fazer o que fez
@@ -223,6 +227,8 @@ class ExplorerPlan:
     def analyzePosition(self):
         """ Sorteia uma direcao e calcula a posicao futura do agente 
         @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
+        print('aqui está a posição: ', self.currentState)
+    
 
         #Seta as primeiras variáveis
         possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
@@ -257,6 +263,11 @@ class ExplorerPlan:
             self.untried[curr_pos] = possibilities
             self.unbacktracked[curr_pos] = []
             self.unbackbacktracked[curr_pos] = []
+            
+            if self.previousDirection !="nop":
+                state = State(self.currentState.row - movePos[self.previousDirection][0], self.currentState.col - movePos[self.previousDirection][1])
+                r_possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+                self.result[curr_pos][r_possibilities.index(oppositeDirection[self.previousDirection])] = state
 
     def setResultOfAction(self, previousState, previousAction):
 
@@ -342,21 +353,25 @@ class ExplorerPlan:
 
     def getLowestDirectionDFS(self):
         possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+
+        
         curr = (self.currentState.row, self.currentState.col)
-        lowestPos = self.result[curr][0]
-        moveDirection = "N"
+        print(self.result[curr])
+        # lowestPos = self.result[curr][0]
+        # moveDirection = "N"
 
         for i in range(0,8):
-            if not lowestPos:
-                if not self.result[curr][i]:
-                    continue
-                val = self.matrix(self.result[curr][i].row, self.result[curr][i].col)
-                lowest = self.matrix(lowestPos.row, lowestPos.col)
+            if self.result[curr][i] != None:
+                lowestPos = self.result[curr][i]
+                moveDirection = possibilities[i]
+                break
 
-                if self.result[curr][i] != self.currentState and val <= lowest:
-                    lowestPos = self.result[curr][i]
-                    moveDirection = possibilities[i]
-            else:
+        for i in range(0,8):
+            if not self.result[curr][i]:
+                continue
+            val = self.matrix[self.result[curr][i].row][self.result[curr][i].col]
+            lowest = self.matrix[lowestPos.row][lowestPos.col]
+            if self.result[curr][i] != self.currentState and val <= lowest:
                 lowestPos = self.result[curr][i]
                 moveDirection = possibilities[i]
 

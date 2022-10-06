@@ -100,9 +100,12 @@ class AgentRnd:
         self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
         print("Ag cre que esta em: ", self.currentState)
 
+        
+
         # Para o estado anterior em que estávamos, o resultado deve ser o agora
         self.plan.setResultOfAction(self.previousState, self.previousAction)
 
+        
         ## Verifica se a execução do acao do ciclo anterior funcionou ou nao
         if not (self.currentState == self.expectedState):
             print("---> erro na execucao da acao ", self.previousAction, ": esperava estar em ", self.expectedState, ", mas estou em ", self.currentState)
@@ -116,6 +119,7 @@ class AgentRnd:
         else:
             self.plan.updateMatrix(self.previousState, self.expectedState, self.prob.getActionCost(self.previousAction), 1)
         
+        
         ## Funcionou ou nao, vou somar o custo da acao com o total 
         self.costAll += self.prob.getActionCost(self.previousAction)
         print ("Custo até o momento (com a ação escolhida):", self.costAll) 
@@ -125,11 +129,11 @@ class AgentRnd:
         print("Tempo disponivel: ", self.tl)
 
         #MUDAR botar um if para matar  o programa se acabou o tempo
-        if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
-            self.plan.analyzePosition()
-            self.plan.setResultOfAction(self.previousState, self.previousAction)
-            print("É hora de voltar para casa!")
-            return -1
+        # if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
+        #     # self.plan.analyzePosition()
+        #     # self.plan.setResultOfAction(self.previousState, self.previousAction)
+        #     print("É hora de voltar para casa!")
+        #     return -1
 
         # if self.tl <= 0:
         #     print('CABOU O TEMPO')
@@ -147,6 +151,15 @@ class AgentRnd:
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
         
+        if self.plan.isItTimeToGoBackHome(self.tl, self.prob.getActionCost(self.previousAction)):
+            # self.currentState = self.positionSensor()
+            # self.plan.updateCurrentState(self.currentState)
+            self.plan.analyzePosition()
+            
+            self.plan.setResultOfAction(self.previousState, self.previousAction)
+            print("É hora de voltar para casa!")
+            return -1
+
         result = self.plan.chooseAction()
         
         if result == None:
@@ -159,20 +172,23 @@ class AgentRnd:
 
         self.previousAction = result[0]
         
-        self.expectedState = result[1]       
+        self.expectedState = result[1]
+
+        
 
         return 1
 
     def yeahItsTimeToGoBackHome(self):
         print('VOLTANO MAMAIN')
 
-        print("\n*** Inicio do ciclo raciocinio ***")
+        print("\n*** Inicio do ciclo raciocinio de volta ***")
         print("Pos agente no amb.: ", self.positionSensor())
 
         ## Redefine o estado atual do agente de acordo com o resultado da execução da ação do ciclo anterior
         # self.previousState = self.currentState
         self.currentState = self.positionSensor()
-        self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
+        self.plan.updateCurrentState(self.currentState)
+         # atualiza o current state no plano
         print("Ag cre que esta em: ", self.currentState)
 
         if self.prob.goalTest(self.currentState):

@@ -12,6 +12,8 @@ class State:
         self.col = col
 
     def __eq__(self, other):
+        if other == None:
+            return False
         if self.row == other.row and self.col == other.col:
             return True
         else:
